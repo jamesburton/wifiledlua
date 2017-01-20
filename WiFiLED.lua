@@ -53,8 +53,8 @@ function setRGB(r,g,b) buffer:fill(g,r,b); ws2812.write(buffer) end
 function setBlue() setRGB(0,0,255) end
 function setRed() setRGB(255,0,0) end
 function setGreen() setRGB(0,255,0) end
-function setPurple() setRGB(255,0,255) end
-function setYellow() setRGB(255,255,0) end
+function setPurple() setRGB(200,0,200) end
+function setYellow() setRGB(200,200,0) end
 function setWhite() setRGB(255,255,255) end
 function setOff() setRGB(0,0,0) end
 
@@ -205,6 +205,7 @@ function startServer()
             collectgarbage()
         end)
     end)
+    connectToMQTT()
 end
 
 function startEndUserSetup()
@@ -310,6 +311,59 @@ function startWifiEventMonitoring()
             print(" - Access point probe request received ... no action currently defined")
         end)
     --]]
+end
+
+local mq = nil
+local keepAlive = 120
+function connectToMQTT()
+    local clientId = "wifiled:" .. node.chipid()
+    print("Connecting to MQTT .. clientId=" .. clientId)
+
+    local server = "m20.cloudmqtt.com"
+    local port = 12773
+    local securePort = 22773
+    local secure = false
+    local user = "oyeypfqd"
+    local password = "H4T1oWKApitM"
+    
+    mq = mqtt.Client(clientId, keepAlive, user, password)
+
+    -- Configure "Last Will and Testament", e.g. disconnect message
+    mq:lwt("/lwt", "offline", 0, 0)
+
+    mq:on("connect", function(client) 
+        print("MQTT connected") 
+        
+        mq:subscribe("/" .. clientId,0, function(client) print("* subscribe success") end)
+        -- publish a message with data = hello, QoS = 0, retain = 0
+        mq:publish("/" .. clientId,"hello",0,0, function(client) print("* sent") end)
+    end)
+    mq:on("offline", function(client) print("MQTT offline") end)
+
+    mq:on("message", function(client, topic, data)
+        print(topic .. ":")
+        if data ~= nil then
+            print(data)
+        end
+    end)
+
+    local portToUse = port
+    if useSecurePort then portToUse = securePort end
+    mq:connect(server, portToUse, useSecurePort, 
+        function(client) 
+            print("* MQTT connected") 
+            -- subscribe topic with qos = 0
+            --mq:subscribe("/topic",0, function(client) print("subscribe success") end)
+            mq:subscribe("/" .. clientId,0, function(client) print("subscribe success") end)
+            -- publish a message with data = hello, QoS = 0, retain = 0
+            mq:publish("/" .. clientId,"hello",0,0, function(client) print("sent") end)
+            
+            mq:close();
+            -- NB: you can call m:connect again
+        end,
+        function(client, reason) 
+            print("* MQTT failed: " .. reason) 
+        end)
 end
 
 init()
