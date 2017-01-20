@@ -97,6 +97,7 @@ function startServer()
             
             --conn:send(html)
             serveHtml(conn, filename)
+            collectgarbage()
         end)
         conn:on("sent", function(conn)
             conn:close()

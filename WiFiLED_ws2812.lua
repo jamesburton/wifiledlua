@@ -11,9 +11,9 @@ function initWs2812()
     -- NB: ws2812 info here: https://nodemcu.readthedocs.io/en/dev/en/modules/ws2812/
     print("Initialising ws2812")
     ws2812.init()
-    print("Writing some colours to the LEDs")
     buffer = ws2812.newBuffer(30,3)
-    setWhite()
+    print("Writing some colours to the LEDs")
+    setOff()
     -- Setup timer
     animationTimer = animationTimer or tmr.create()
     -- NB: Seeing if ALARM_SEMI avoids zombie timers
@@ -35,6 +35,7 @@ function shiftBuffer(bufferToShift, offset, displayBuffer, noLoop)
     if displayBuffer then
         ws2812.write(bufferToShift)
     end
+    collectgarbage()
 end
 
 function setRGB(r,g,b) buffer:fill(g,r,b); ws2812.write(buffer) end
@@ -68,6 +69,7 @@ end
 function startAnimationIfNotRunning()
     local running, mode = animationTimer:state()
     if not running then animationTimer:start() end
+    collectgarbage()
 end
 function faster() 
     if animationDelay > 50 then 

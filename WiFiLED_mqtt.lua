@@ -21,7 +21,10 @@ function connectToMQTT()
         
         mq:subscribe("/" .. clientId,0, function(client) print("* subscribe success") end)
         -- publish a message with data = hello, QoS = 0, retain = 0
-        mq:publish("/" .. clientId,"hello",0,0, function(client) print("* sent") end)
+        --mq:publish("/" .. clientId,"hello",0,0, function(client) print("* sent") end)
+        local url = "http://" .. wifi.sta.getip() .. "/";
+        mq:publish("/" .. clientId,"Connected on <a href=\"" .. url .. "\">" .. url .. "</a>",0,0, function(client) print("* sent") end)
+        collectgarbage()
     end)
     mq:on("offline", function(client) print("MQTT offline") end)
 
