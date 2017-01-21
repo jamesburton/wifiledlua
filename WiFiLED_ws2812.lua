@@ -100,3 +100,11 @@ function setDefaultSpeed()
     startAnimationIfNotRunning()
     animationTimer:interval(animationDelay)
 end
+function brighten()
+    buffer:fade(2,ws2812.FADE_IN)
+    ws2812.write(buffer)
+end
+function darken()
+    buffer:fade(2,ws2812.FADE_OUT)
+    ws2812.write(buffer)
+end

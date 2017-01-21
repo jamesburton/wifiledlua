@@ -45,6 +45,8 @@ function connectToMQTT()
             elseif data == "slower" then slower()
             elseif data == "stop" then stopAnimation()
             elseif data == "defaultSpeed" then setDefaultSpeed()
+            elseif data == "brighten" then brighten()
+            elseif data == "darken" then darken()
             elseif string.sub(data,1,12)=="Connected on" then --Nothing
             elseif string.sub(data,1,5)=="hello" then --Nothing
             elseif string.sub(data,1,3)=="rgb" then 

@@ -1,15 +1,6 @@
 local srv=net.createServer(net.TCP)
 local port = 80
 function serveHtml(conn, filename)
-    print("serveHtml: " .. filename)
-    -- Send content type (MIME) header
-    --[[
-    local code = 200
-    local statusString = "OK"
-    local mimeType = "text/html"
-    conn:send("HTTP/1.0 " .. code .. " " .. statusString .. "\r\nServer: wifiled-httpserver\r\nContent-Type: " .. mimeType .. "\r\n")
-    --]]
-    -- Send file
     local bytesRemaining = file.list()[filename]
     print("File: " .. file.list()[filename])
     local chunkSize = 1024
@@ -34,9 +25,6 @@ function startServer()
     srv:listen(port, function(conn)
         print("Listing on port " .. port)
         conn:on("receive",function(conn,request)
-            --print(request)
-            --conn:send("<h1>Hello, from WiFiLED</h1>")
-
             local _, _, method, path, vars = string.find(request, "([A-Z]+) (.+)?(.+) HTTP");
             if (method == nil) then
                 _, _, method, path = string.find(request, "([A-Z]+) (.+) HTTP");
@@ -52,12 +40,22 @@ function startServer()
             print("Path: " .. (path or "[nil]") .. ", request method " .. (method or "[nil]") .. ", vars = " .. (vars or "[nil]"))
             if path == "/" then
                 print("Returning home page")
-            elseif path == "/rgb" then
-                print("Setting RGB")
-                setRGBRepeat()
-            elseif path == "/rgb1" then
-                print("Setting RGB cluster")
-                setRGBCluster()
+            elseif string.sub(path,1,4)=="/rgb" then
+                if path == "/rgb" then
+                    print("Setting RGB")
+                    setRGBRepeat()
+                elseif path == "/rgb1" then
+                    print("Setting RGB cluster")
+                    setRGBCluster()
+                else -- Assume we ahve rgbRRGGBB
+                    setRGB(tonumber(string.sub(data,5,6), 16), tonumber(string.sub(data,7,8), 16), tonumber(string.sub(data,9,10), 16))
+                end
+            elseif path == "/brighten" then
+                print("Brightening")
+                brighten()
+            elseif path == "/darken" then
+                print("Darkening")
+                darken()
             elseif path == "/blue" then
                 print("Setting Blue")
                 setBlue()
