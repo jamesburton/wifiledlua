@@ -31,6 +31,7 @@ function connectToMQTT()
     mq:on("message", function(client, topic, data)
         print(topic .. ":")
         if data ~= nil then
+            print(data)
             if data == "white" then setWhite()
             elseif data == "red" then setRed()
             elseif data == "green" then setGreen()
@@ -44,9 +45,19 @@ function connectToMQTT()
             elseif data == "slower" then slower()
             elseif data == "stop" then stopAnimation()
             elseif data == "defaultSpeed" then setDefaultSpeed()
+            elseif string.sub(data,1,12)=="Connected on" then --Nothing
+            elseif string.sub(data,1,5)=="hello" then --Nothing
+            elseif string.sub(data,1,3)=="rgb" then 
+                setRGB(tonumber(string.sub(data,4,5), 16), tonumber(string.sub(data,6,7), 16), tonumber(string.sub(data,8,9), 16))
+            --[[elseif string.sub(data,1,6)=="multi" then 
+                local colors = {}
+                local colorString = string.sub(data,7)
+                while #colorString >= 6 do
+                    color = ...?
+                    array.insert(colors, color)
+                end]]
             else print("-Unhandled MQTT message:-")
             end
-            print(data)
         end
     end)
 

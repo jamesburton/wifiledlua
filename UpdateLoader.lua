@@ -1,5 +1,5 @@
-dofile("LoaderLastUpdated.lua")
-dofile("LoaderSettings.lua")
+require("LoaderLastUpdated")
+require("LoaderSettings")
 
 -- Switch DNS to Google (from OpenDNS [default])
 net.dns.setdnsserver("8.8.8.8",0)
