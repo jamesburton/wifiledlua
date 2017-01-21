@@ -38,6 +38,13 @@ function connectToMQTT()
             elseif data == "purple" then setPurple()
             elseif data == "yellow" then setYellow()
             elseif data == "off" then setOff()
+            elseif data == "rgbcluster" then setRGBCluster()
+            elseif data == "rgbrepeat" then setRGBRepeat()
+            elseif data == "faster" then faster()
+            elseif data == "slower" then slower()
+            elseif data == "stop" then stopAnimation()
+            elseif data == "defaultSpeed" then setDefaultSpeed()
+            else print("-Unhandled MQTT message:-")
             end
             print(data)
         end
