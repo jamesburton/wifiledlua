@@ -19,7 +19,10 @@ function serveHtml(conn, filename)
     fileHandle = nil
     collectgarbage()
 end
+local connected = false
 function startServer()
+    if connected then return end
+    connected = true
     print("Starting webserver on IP " .. wifi.sta.getip())
     -- Example with basic webserver: http://hanneslehmann.github.io/2015/01/ESP8266Module_LUA/
     srv:listen(port, function(conn)

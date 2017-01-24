@@ -5,6 +5,16 @@ local animationTimer
 local animationDelay = 250
 -- Add some RGB blocks by copying buffers
 local rgbBuffer = ws2812.newBuffer(3,3); rgbBuffer:set(1,0,255,0); rgbBuffer:set(2,255,0,0); rgbBuffer:set(3,0,0,255)
+local cylonBuffer = ws2812.newBuffer(3,3); cylonBuffer:set(1,80,0,0); cylonBuffer:set(2,255,0,0); cylonBuffer:set(3,80,0,0)
+WiFiLED.MODE_LOOP = 0
+WiFiLED.MODE_BOUNCE = 1
+WiFiLED.MODE_CYLON = 2
+WiFiLED.MODE_PULSE = 3
+WiFiLED.MODE_RANDOM = 4
+WiFiLED.mode = WiFiLED.MODE_LOOP
+WiFiLED.offset = 1 -- Use for bounce count/etc.
+WiFiLED.animVar = 0 -- Use for direction/sin deg/etc.
+WiFiLED.numberLEDs = 30
 
 function initWs2812()
     --*** WiFi LED ***
@@ -18,9 +28,32 @@ function initWs2812()
     animationTimer = animationTimer or tmr.create()
     -- NB: Seeing if ALARM_SEMI avoids zombie timers
     animationTimer:register(animationDelay, tmr.ALARM_SEMI, function()
-        shiftBuffer(null,1,true)
-        animationTimer:start()
+        animationLoop()
     end)
+    animationTimer:start()
+end
+
+function animationLoop()
+    if WiFiLED.mode == WiFiLED.MODE_CYLON then
+        clear(WiFiLED.offset, 3)
+        if WiFiLED.animVar == 0 then
+            if WiFiLED.offset == WiFiLED.numberLEDs - 3 then
+                WiFiLED.animVar = 1
+            else
+                WiFiLED.offset = WiFiLED.offset + 1
+            end
+        else
+            if WiFiLED.offset == 1 then
+                WiFiLED.animVar = 0
+            else
+                WiFiLED.offset = WiFiLED.offset - 1
+            end
+        end
+        setCylonCluser(WiFiLED.offset)
+        ws2812.write(buffer)
+    else--if WiFiLED.mode == WiFiLED.MODE_LOOP
+        shiftBuffer(null,1,true)
+    end
     animationTimer:start()
 end
 
@@ -47,22 +80,24 @@ function setYellow() setRGB(200,200,0) end
 function setWhite() setRGB(255,255,255) end
 function setOff() setRGB(0,0,0) end
 
-function setRGBCluster()
-    buffer:replace(rgbBuffer, 1)
+function setRGBCluster(offset)
+    offset = offset or 1
+    buffer:replace(rgbBuffer, offset)
     ws2812.write(buffer)
+end
+function setCylonCluster(offset)
+    offset = offset or 1
+    buffer:replace(cylonBuffer, offset)
+    ws2812.write(buffer)
+end
+function clear(offset, length)
+    offset = offset or 1
+    length = length or 1
+    buffer:set(offset,0,0,0)
 end
 
 function setRGBRepeat()
-    buffer:replace(rgbBuffer, 1)
-    buffer:replace(rgbBuffer, 4)
-    buffer:replace(rgbBuffer, 7)
-    buffer:replace(rgbBuffer, 10)
-    buffer:replace(rgbBuffer, 13)
-    buffer:replace(rgbBuffer, 16)
-    buffer:replace(rgbBuffer, 19)
-    buffer:replace(rgbBuffer, 22)
-    buffer:replace(rgbBuffer, 25)
-    buffer:replace(rgbBuffer, 28)
+    for i = 1,28,3 do buffer:replace(rgbBuffer, 1) end
     ws2812.write(buffer)
 end
 
@@ -107,4 +142,10 @@ end
 function darken()
     buffer:fade(2,ws2812.FADE_OUT)
     ws2812.write(buffer)
+end
+function setCylon()
+    WiFiLED.mode = WiFiLED.MODE_CYLON
+end
+function setLoop()
+    WiFiLED.mode = WiFiLED.MODE_LOOP
 end

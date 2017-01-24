@@ -14,14 +14,13 @@ function connectToMQTT()
     mq = mqtt.Client(clientId, keepAlive, user, password)
 
     -- Configure "Last Will and Testament", e.g. disconnect message
-    mq:lwt("/lwt", "offline", 0, 0)
+    --mq:lwt("/lwt", "offline", 0, 0)
+    mq:lwt("/"..clientId.."/lwt", "offline", 0, 0)
 
     mq:on("connect", function(client) 
         print("MQTT connected") 
         
         mq:subscribe("/" .. clientId,0, function(client) print("* subscribe success") end)
-        -- publish a message with data = hello, QoS = 0, retain = 0
-        --mq:publish("/" .. clientId,"hello",0,0, function(client) print("* sent") end)
         local url = "http://" .. wifi.sta.getip() .. "/";
         mq:publish("/" .. clientId,"Connected on <a href=\"" .. url .. "\">" .. url .. "</a>",0,0, function(client) print("* sent") end)
         collectgarbage()
@@ -47,17 +46,13 @@ function connectToMQTT()
             elseif data == "defaultSpeed" then setDefaultSpeed()
             elseif data == "brighten" then brighten()
             elseif data == "darken" then darken()
+            elseif data == "cyloncluster" then setCylonCluster()
+            elseif data == "cylon" then setCylon()
+            elseif data == "loop" then setLoop()
             elseif string.sub(data,1,12)=="Connected on" then --Nothing
             elseif string.sub(data,1,5)=="hello" then --Nothing
             elseif string.sub(data,1,3)=="rgb" then 
                 setRGB(tonumber(string.sub(data,4,5), 16), tonumber(string.sub(data,6,7), 16), tonumber(string.sub(data,8,9), 16))
-            --[[elseif string.sub(data,1,6)=="multi" then 
-                local colors = {}
-                local colorString = string.sub(data,7)
-                while #colorString >= 6 do
-                    color = ...?
-                    array.insert(colors, color)
-                end]]
             else print("-Unhandled MQTT message:-")
             end
         end
@@ -69,7 +64,6 @@ function connectToMQTT()
         function(client) 
             print("* MQTT connected") 
             -- subscribe topic with qos = 0
-            --mq:subscribe("/topic",0, function(client) print("subscribe success") end)
             mq:subscribe("/" .. clientId,0, function(client) print("subscribe success") end)
             -- publish a message with data = hello, QoS = 0, retain = 0
             mq:publish("/" .. clientId,"hello",0,0, function(client) print("sent") end)

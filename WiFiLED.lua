@@ -1,3 +1,5 @@
+WiFiLED = {}
+
 node.compile("WiFiLED_ws2812.lua")
 dofile("WiFiLED_ws2812.lc")
 node.compile("WiFiLED_mqtt.lua")
@@ -9,7 +11,8 @@ dofile("WiFiLED_webServer.lc");--]]
 node.compile("WiFiLED_endUserSetup.lua")
 dofile("WiFiLED_endUserSetup.lc")
 
-function init()
+
+local function init()
     print("*** Initialising ***")
 
     initWs2812()
