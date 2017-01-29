@@ -49,7 +49,7 @@ function animationLoop()
                 WiFiLED.offset = WiFiLED.offset - 1
             end
         end
-        setCylonCluser(WiFiLED.offset)
+        setCylonCluster(WiFiLED.offset)
         ws2812.write(buffer)
     else--if WiFiLED.mode == WiFiLED.MODE_LOOP
         shiftBuffer(null,1,true)
